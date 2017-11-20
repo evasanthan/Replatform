@@ -1,0 +1,8 @@
+com/github/bpark/BlogPostController.class
+com/github/bpark/BlogPostDaoBean.class
+com/github/bpark/SpamException.class
+com/github/bpark/BlogPost.class
+com/github/bpark/ResourceNotFoundException.class
+com/github/bpark/Application.class
+com/github/bpark/SpamFilterService.class
+com/github/bpark/SpamFilterServiceBean.class
