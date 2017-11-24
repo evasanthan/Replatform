@@ -1,0 +1,7 @@
+---
+applications:
+- name: simpleblogNew
+  memory: 1G
+  instances: 1
+  services:
+    - simpleblobsql
