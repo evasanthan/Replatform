@@ -78,4 +78,4 @@ jobs:
       command: zero-downtime-push
       manifest: sourceCode/manifest.yml
       path: warFile/simpleblog.war
-      current_app_name: simpleblog    
+      current_app_name: simpleblogNew
