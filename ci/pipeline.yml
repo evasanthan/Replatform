@@ -13,7 +13,7 @@ resources:
   type: git
   source:
     uri: https://github.com/evasanthan/modernization.git
-    branch: Modernization
+    branch: master
     username: {{git-username}}
     password: {{git-password}} 
 # CF-CLI resource
