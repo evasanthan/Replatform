@@ -1,0 +1,81 @@
+# Docker image resource type for email notification
+resource_types:
+# CF-CLI resource type
+- name: cf-cli
+  type: docker-image
+  source:
+    repository: pivotalpa/cf-cli-resource
+    tag: latest
+# Pipeline resources
+resources:
+# Git clone resource
+- name: sourceCode
+  type: git
+  source:
+    uri: https://github.com/evasanthan/modernization.git
+    branch: Modernization
+    username: {{git-username}}
+    password: {{git-password}} 
+# CF-CLI resource
+- name: cli
+  type: cf-cli
+  source:
+    api: {{cf-api}}
+    username: {{cf-username}}
+    password: {{cf-password}}
+    org: {{cf-org}}
+    space: {{cf-space}}
+    skip_cert_check: true
+jobs:
+- name: buildAndDeploy
+  # Avoid parallel jobs
+  serial: true
+  plan: 
+    # Git clone
+  - get: sourceCode
+    trigger: true
+    # Maven build
+  - task: build
+    config:
+      platform: linux
+      inputs:
+      - name: sourceCode
+      outputs:
+      - name: warFile
+      image_resource:
+        type: docker-image
+        source: 
+          repository: maven
+          tag: latest
+      run:
+        path: sh
+        args:
+        - -exc
+        - |
+          export TERM=dumb
+          cd sourceCode
+          mvn clean install -e -Dtest=Tests
+          cd target
+          ls -lrt
+          pwd
+          mv *.war ../../warFile/simpleblog.war
+          cd ../../warFile
+          cd ..
+    # CF create service instance
+  - put: cf-create-service
+    resource: cli
+    params:
+      command: create-service
+      service: p-mysql
+      plan: 100mb
+      service_instance: simpleblobsql
+      timeout: 300
+      wait_for_service: true
+    # CF push
+  - put: cf-zero-downtime-push
+    resource: cli
+    params:
+      command: zero-downtime-push
+      manifest: sourceCode/manifest.yml
+      path: warFile/simpleblog.war
+      current_app_name: simpleblog    
