@@ -12,7 +12,7 @@ resources:
 - name: sourceCode
   type: git
   source:
-    uri: https://github.com/TheCognizantFoundry/SpringReplatform.git
+    uri: https://github.com/evasanthan/Replatform.git
     branch: master
     username: {{git-username}}
     password: {{git-password}} 
