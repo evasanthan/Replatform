@@ -98,23 +98,26 @@ public class BlogPostController {
      */
     @RequestMapping(value = "/blogposts/posts", method= RequestMethod.POST)
     //@RequestMapping(method=RequestMethod.POST)
-        public String create(BlogPost blogPost, BindingResult result) throws SpamException {
+    public String create(BlogPost blogPost, BindingResult result) throws SpamException {
 
-        System.out.println("Welcome Post");
-            String content = blogPost.getContent();
-            boolean isSpam = spamFilterService.checkSpam(content);
-            if (isSpam) {
-                throw new SpamException();
-            }
-            String shortContent;
-            if (content.length() > 255) {
-                shortContent = content.substring(0, 255);
-            } else {
-                shortContent = content;
-            }
-            blogPost.setShortContent(shortContent);
-            blogPostDao.persist(blogPost);
-            return "redirect:/blogposts/";
+        String content = blogPost.getContent();
+        boolean isSpam = spamFilterService.checkSpam(content);
+
+
+        if (isSpam) {
+            throw new SpamException();
+        }
+
+        String shortContent;
+        if (content.length() > 255) {
+            shortContent = content.substring(0, 255);
+        } else {
+            shortContent = content;
+        }
+        blogPost.setShortContent(shortContent);
+        blogPostDao.persist(blogPost);
+
+        return "redirect:/blogposts/";
     }
 
     /**
@@ -151,10 +154,12 @@ public class BlogPostController {
      */
     @RequestMapping(value="/blogposts/{id}", method=RequestMethod.GET)
     public ModelAndView getView(@PathVariable Integer id) {
+
         BlogPost blogPost = blogPostDao.find(id);
-        if (blogPost == null) {
-            throw new ResourceNotFoundException();
-        }
+//        if (blogPost == null) {
+//            throw new ResourceNotFoundException();
+//        }
+
         ModelAndView mav = new ModelAndView("article");
         mav.addObject("article", blogPost);
         return mav;

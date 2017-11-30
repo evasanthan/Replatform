@@ -70,7 +70,7 @@ public class Tests {
     @Test
     public void ValidateBlogPostMethod()
             throws Exception {
-       // assertThat(this.blogPostDaoBeanMock).isNotNull();
+        // assertThat(this.blogPostDaoBeanMock).isNotNull();
         mvc.perform(get("/"))
 
                 .andExpect(status().isOk())
@@ -104,7 +104,6 @@ public class Tests {
             throws Exception {
         // assertThat(this.blogPostDaoBeanMock).isNotNull();
         mvc.perform(get("/blogposts/"))
-
                 .andExpect(status().isOk())
                 .andExpect(view().name("posts"))
                 .andDo(print());
@@ -118,7 +117,7 @@ public class Tests {
         when(blogPostDaoBeanMock.find(1)).thenReturn(blogPost);
         assertThat(this.blogPost).isNotNull();
 
-        mvc.perform(get("/blogposts/{id}",1000))
+        mvc.perform(get("/blogposts/{id}",1001))
                 .andExpect(status().isOk())
                 .andExpect(view().name("article"))
                 //.andExpect(MockMvcResultMatchers.model().attributeExists("article"))
