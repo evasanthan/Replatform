@@ -9,7 +9,7 @@ resource_types:
 # Pipeline resources
 resources:
 # Git clone resource
-- name: sourceCode
+- name: simpleblog-source
   type: git
   source:
     uri: https://github.com/evasanthan/Replatform.git
@@ -27,19 +27,20 @@ resources:
     space: {{cf-space}}
     skip_cert_check: true
 jobs:
-- name: buildAndDeploy
+- name: build
   # Avoid parallel jobs
   serial: true
+  public: true
   plan: 
     # Git clone
-  - get: sourceCode
+  - get: simpleblog-source
     trigger: true
     # Maven build
   - task: build
     config:
       platform: linux
       inputs:
-      - name: sourceCode
+      - name: simpleblog-source
       outputs:
       - name: warFile
       image_resource:
@@ -53,7 +54,7 @@ jobs:
         - -exc
         - |
           export TERM=dumb
-          cd sourceCode
+          cd simpleblog-source
           mvn clean install -e -Dtest=Tests
           cd target
           ls -lrt
@@ -61,21 +62,34 @@ jobs:
           mv *.war ../../warFile/simpleblog.war
           cd ../../warFile
           cd ..
+
+  - name: Staging
+    public: true
+    plan:
+    - get: simpleblog-source
+      trigger: true
+      passed: [build]
     # CF create service instance
-  - put: cf-create-service
-    resource: cli
-    params:
-      command: create-service
-      service: p-mysql
-      plan: 100mb
-      service_instance: simpleblobsql
-      timeout: 300
-      wait_for_service: true
+    - put: cf-create-service
+      resource: cli
+      params:
+        command: create-service
+        service: p-mysql
+        plan: 100mb
+        service_instance: simpleblobsql
+        timeout: 300
+        wait_for_service: true
+    - name: Production
+       public: true
+       plan:
+       - get: simpleblog-source
+         trigger: true
+         passed: [Staging]
     # CF push
-  - put: cf-zero-downtime-push
-    resource: cli
-    params:
-      command: zero-downtime-push
-      manifest: sourceCode/manifest.yml
-      path: warFile/simpleblog.war
-      current_app_name: simpleblogNew
+    - put: cf-zero-downtime-push
+        resource: cli
+        params:
+          command: zero-downtime-push
+          manifest: sourceCode/manifest.yml
+          path: warFile/simpleblog.war
+          current_app_name: simpleblogNew
