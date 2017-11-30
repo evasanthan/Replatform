@@ -79,17 +79,18 @@ jobs:
         service_instance: simpleblobsql
         timeout: 300
         wait_for_service: true
-    - name: Production
-       public: true
-       plan:
-       - get: simpleblog-source
-         trigger: true
-         passed: [Staging]
+
+  - name: Production
+    public: true
+    plan:
+    - get: simpleblog-source
+      trigger: true
+      passed: [Staging]
     # CF push
     - put: cf-zero-downtime-push
-        resource: cli
-        params:
-          command: zero-downtime-push
-          manifest: sourceCode/manifest.yml
-          path: warFile/simpleblog.war
-          current_app_name: simpleblogNew
+      resource: cli
+      params:
+        command: zero-downtime-push
+        manifest: simpleblog-source/manifest.yml
+        path: warFile/simpleblog.war
+        current_app_name: simpleblogNew
